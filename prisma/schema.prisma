@@ -1,0 +1,81 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Customer {
+  id        Int        @id @default(autoincrement())
+  name      String     @db.VarChar(100)
+  phone     String     @db.VarChar(15)
+  road      String     @db.VarChar(100)
+  district  String     @db.VarChar(100)
+  email     String     @db.VarChar(191)
+  password  String     @db.VarChar(100)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime?
+  deletedAt DateTime?
+  purchases Purchase[]
+}
+
+model Publish {
+  id                 Int       @id @default(autoincrement())
+  name               String    @db.VarChar(100)
+  registration_State String    @db.VarChar(30)
+  cnpj               String    @db.VarChar(18)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime?
+  deletedAt          DateTime?
+  books              Book[]
+}
+
+model Genre {
+  id        Int       @id @default(autoincrement())
+  name      String    @db.VarChar(100)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime?
+  deletedAt DateTime?
+  books     Book[]
+}
+
+model Book {
+  id        Int         @id @default(autoincrement())
+  publish   Publish     @relation(fields: [publishId], references: [id])
+  publishId Int         @db.Int()
+  genre     Genre       @relation(fields: [genreId], references: [id])
+  genreId   Int         @db.Int()
+  title     String      @db.VarChar(100)
+  author    String      @db.VarChar(100)
+  barcode   String      @db.VarChar(40)
+  price     Decimal     @db.Decimal(5, 2)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime?
+  deletedAt DateTime?
+  purchases Purchase[]
+  inventory Inventory[]
+}
+
+model Purchase {
+  id         Int       @id @default(autoincrement())
+  customer   Customer  @relation(fields: [customerId], references: [id])
+  customerId Int       @db.Int()
+  book       Book      @relation(fields: [bookId], references: [id])
+  bookId     Int       @db.Int()
+  quantity   Int       @db.Int()
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime?
+  deletedAt  DateTime?
+}
+
+model Inventory {
+  id       Int  @id @default(autoincrement())
+  id_book  Book @relation(fields: [book_id], references: [id])
+  book_id  Int  @db.Int()
+  quantity Int  @db.Int()
+}
